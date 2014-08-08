@@ -13,4 +13,4 @@
         (let [at-name (str "@" (:user_name params))
               channel-name (str "#" (:channel_name params))
               text (str at-name ": " first-image)]
-          (slack/post-message {:channel channel-name :text text}))))))
+          {:text text})))))

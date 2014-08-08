@@ -1,6 +1,7 @@
 (ns spike.server
   (:require [clojure.string :as string]
             [clojure.java.io :as io]
+            [cheshire.core :as json]
             [polaris.core :refer :all]
             [ring.middleware
               [reload :refer [wrap-reload]]
@@ -35,8 +36,8 @@
         trigger-word (:trigger_word params)
         text (:text params)]
     (if-let [arguments (text->arguments trigger-word text)]
-      (if (dispatcher params arguments)
-        {:status 200 :body "ok"}
+      (if-let [command-response (dispatcher params arguments)]
+        {:status 200 :body (json/generate-string command-response)}
         {:status 400 :body "unable to execute requested command"})
       (response "no"))))
 

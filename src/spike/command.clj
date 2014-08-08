@@ -12,11 +12,9 @@
     (fn [config params text]
       (when-let [match (match patterns text)]
         (let [arguments (if (string? match) match (second match))]
-          (do
-            (debugf "dispatching text to command: %s" (name identifier))
-            (binding [config/*conf* config]
-              (func params arguments))
-              identifier))))))
+          (debugf "dispatching text to command: %s" (name identifier))
+          (binding [config/*conf* config]
+            (func params arguments)))))))
 
 (defn command-router
   [conf compiled-commands]
