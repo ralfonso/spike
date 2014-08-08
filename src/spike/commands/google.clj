@@ -11,9 +11,8 @@
     (when (= (:status response) 200)
       (when-let [first-result (-> response :body :responseData :results first :url)]
         (let [at-name (str "@" (:user_name params))
-              channel-name (str "#" (:channel_name params))
               result (format "<%s>" first-result)
               google-url (str "https://www.google.com/#q=" arguments)
               more (format "<%s>" google-url)
               text (str at-name ": " first-result " more: " more)]
-          (slack/post-message {:channel channel-name :text text}))))))
+          {:text text})))))

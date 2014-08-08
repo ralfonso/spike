@@ -5,4 +5,4 @@
 (defn ping
   [params text]
   (let [channel-name (str "#" (:channel_name params))]
-    (slack/post-message {:channel channel-name :text "PONG!"})))
+    {:text "PONG!"}))
