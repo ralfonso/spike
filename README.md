@@ -5,7 +5,7 @@ A bot for Slack (https://slack.com) written in Clojure.
 ## Usage
 
 Set up your Slack incoming/outgoing webhooks, configure the bot, deploy
-somewhere!
+somewhere! 
 
 ## License
 

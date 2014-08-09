@@ -21,8 +21,8 @@
   (when (not-any? empty? [trigger-word text])
     (string/replace text (re-pattern (str "^" trigger-word "\\W+")) "")))
 
-;;;TODO: this needs improvement
-(def conf {:slack-webhook-url (System/getenv "SLACK_WEBHOOK_URL")})
+;;;TODO: this needs improvement, ahehn
+(def conf {})
 
 (defcommands dispatcher
   conf
