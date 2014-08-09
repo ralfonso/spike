@@ -26,9 +26,9 @@
 
 (defcommands dispatcher
   conf
-  [[#"^gis (.+)" :gis gis/gis]
-   [#"^google (.+)" :google google/google]
-   [#"^ping$" :ping ping/ping]])
+  [[:gis :patterns #"^gis (.+)" :handler gis/gis]
+   [:google :patterns #"^google (.+)" :handler google/google]
+   [:ping :patterns #"^ping$" :handler ping/ping]])
 
 (defn webhook
   [request]
