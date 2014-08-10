@@ -1,31 +1,30 @@
 (ns spike.command
-  (:require [taoensso.timbre :as timbre :refer [infof errorf debugf tracef]]
-            [spike.config :as config]))
+  (:require [clojure.string :as string]
+            [taoensso.timbre :as timbre :refer [infof errorf debugf tracef]]))
 
-(defn match
-  [patterns text]
-  (first (filter (comp not nil?) (map #(re-find % text) patterns))))
+(defprotocol Command
+  (match [this text])
+  (help [this])
+  (syntax [this])
+  (exec [this request-params text]))
 
-(defn compile-command
-  [{identifier :identifier patterns :patterns handler :handler :as command}]
-  (let [patterns (if (coll? patterns) patterns [patterns])]
-    (fn [config params text]
-      (when-let [match (match patterns text)]
-        (let [arguments (if (string? match) match (second match))]
-          (debugf "dispatching text to command: %s" (name identifier))
-          (binding [config/*conf* config]
-            (handler params arguments)))))))
+(defn text->command-text
+  [trigger-word text]
+  (when (not-any? empty? [trigger-word text])
+    (string/replace text (re-pattern (str "^" trigger-word "\\W+")) "")))
 
-(defn command-router
-  [conf compiled-commands]
-  (fn [params text]
-    (some #(% conf params text) compiled-commands)))
+;; FIXME: is there a way to do this inline rather than having this named fn?
+(defn match-command
+  [command-text command]
+  (let [matches (match command command-text)]
+    (when matches
+      [matches command])))
 
-(defn command->map
-  [v]
-  (assoc (apply hash-map (rest v)) :identifier (first v)))
-
-; inspired by compojure's defroutes macro
-(defmacro defcommands
-  [name conf & commands]
-  `(def ~name (command-router ~conf (map (comp compile-command command->map) ~@commands))))
+(defn dispatcher
+  [commands]
+  (fn [request-params]
+    (let [trigger-word (:trigger_word request-params)
+          text (:text request-params)
+          command-text (text->command-text trigger-word text)]
+      (when-let [[matches command] (some (partial match-command command-text) commands)]
+        (exec command request-params matches)))))

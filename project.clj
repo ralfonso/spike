@@ -11,9 +11,11 @@
                  [com.taoensso/timbre "3.2.0"]
                  [polaris "0.0.4"]]
   :plugins [[lein-ring "0.8.11"]]
-  :ring {:handler spike.server/handler}
+  :ring {:init spike.server/init
+         :handler spike.server/handler}
+  :resource-paths ["resources" "app"]
   :profiles {:dev {:source-paths ["dev"]
-                   :resource-paths ["resources" "dev-resources"]
+                   :resource-paths ["resources" "dev-resources" "app"]
                    :dependencies [[cider/cider-nrepl "0.7.0-SNAPSHOT"]
                                   [org.clojure/test.check "0.5.9"]
                                   [org.clojure/tools.namespace "0.2.4"]]}}
@@ -26,5 +28,4 @@
                                cider.nrepl.middleware.macroexpand/wrap-macroexpand
                                cider.nrepl.middleware.stacktrace/wrap-stacktrace]}
   :main spike.bin
-  :uberjar-name "spike-standalone.jar"
   :min-lein-version "2.0.0")

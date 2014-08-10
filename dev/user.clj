@@ -1,22 +1,21 @@
 (ns user
-  (:require [clojure.tools.namespace.repl :refer [refresh]]
+  (:require [clojure.tools.namespace.repl :refer [refresh set-refresh-dirs]]
             [spike.server :as server]
             [ring.adapter.jetty :as jetty]))
 
-(def server (atom nil))
+(def jetty-server (atom nil))
 
 (defn init
   []
-  ; placeholder)
-  )
+  (server/init))
 
 (defn start
   []
-  (reset! server (jetty/run-jetty server/handler {:port 3001 :join? false})))
+  (reset! jetty-server (jetty/run-jetty server/handler {:port 3001 :join? false})))
 
 (defn stop
   []
-  (.stop (deref server)))
+  (.stop (deref jetty-server)))
 
 (defn go
   []
@@ -25,6 +24,7 @@
 
 (defn reload
   []
-  (when (deref server)
+  (when (deref jetty-server)
     (stop))
+  (set-refresh-dirs "./src" "./dev")
   (refresh :after 'user/go))

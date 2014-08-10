@@ -9,37 +9,20 @@
               [keyword-params :refer [wrap-keyword-params]]]
             [ring.util.response :refer [response]]
             [taoensso.timbre :as timbre :refer [infof errorf debugf tracef]]
-            [spike.command :refer [defcommands]]
+            [spike.command :as command]
             [spike.commands
               [gis :as gis]
               [google :as google]
               [ping :as ping]]
             [spike.config :as config]))
 
-(defn text->arguments
-  [trigger-word text]
-  (when (not-any? empty? [trigger-word text])
-    (string/replace text (re-pattern (str "^" trigger-word "\\W+")) "")))
-
-;;;TODO: this needs improvement, ahehn
-(def conf {})
-
-(defcommands dispatcher
-  conf
-  [[:gis :patterns #"^gis (.+)" :handler gis/gis]
-   [:google :patterns #"^google (.+)" :handler google/google]
-   [:ping :patterns #"^ping$" :handler ping/ping]])
-
 (defn webhook
   [request]
   (let [params (:params request)
-        trigger-word (:trigger_word params)
-        text (:text params)]
-    (if-let [arguments (text->arguments trigger-word text)]
-      (if-let [command-response (dispatcher params arguments)]
-        {:status 200 :body (json/generate-string command-response)}
-        {:status 400 :body "unable to execute requested command"})
-      (response "no"))))
+        dispatcher (:dispatcher request)]
+    (if-let [command-response (dispatcher params)]
+      {:status 200 :body (json/generate-string command-response)}
+      {:status 400 :body "unable to execute requested command"})))
 
 (defn index
   [request]
@@ -49,8 +32,20 @@
   [["/" :index index]
    ["/webhook" :webhook webhook]])
 
-(def handler
-  (-> (router (build-routes routes))
-      (wrap-keyword-params)
-      (wrap-params)
-      (wrap-reload)))
+(declare handler)
+
+(defn init
+  []
+
+  ;; FIXME: find a better way to initialize the commands
+  (let [commands [(gis/gis) (ping/ping) (google/google)]
+        command-dispatcher (command/dispatcher commands)]
+
+    (def handler
+      (-> (router (build-routes routes))
+          ((fn [handler]
+            (fn [request]
+              (handler (assoc request :dispatcher command-dispatcher)))))
+          (wrap-keyword-params)
+          (wrap-params)
+          (wrap-reload)))))
