@@ -3,10 +3,10 @@
             [taoensso.timbre :as timbre :refer [infof errorf debugf tracef]]))
 
 (defprotocol Command
-  (match [this text])
+  (match [this command-text])
   (help [this])
   (syntax [this])
-  (exec [this request-params text]))
+  (exec [this request-params matches]))
 
 (defn text->command-text
   [trigger-word text]
@@ -16,7 +16,7 @@
 ;; FIXME: is there a way to do this inline rather than having this named fn?
 (defn match-command
   [command-text command]
-  (let [matches (match command command-text)]
+  (let [matches (.match command command-text)]
     (when matches
       [matches command])))
 
@@ -27,4 +27,4 @@
           text (:text request-params)
           command-text (text->command-text trigger-word text)]
       (when-let [[matches command] (some (partial match-command command-text) commands)]
-        (exec command request-params matches)))))
+        (.exec command request-params matches)))))
