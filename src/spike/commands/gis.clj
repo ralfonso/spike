@@ -4,9 +4,12 @@
   (:import  [spike.command Command]))
 
 (defn execute
-  [request-params arguments]
-  (let [response (client/get "http://ajax.googleapis.com/ajax/services/search/images"
-                             {:query-params {:rsz "8" :v "1.0" :q arguments}
+  [request-params query-params search-terms]
+  (let [params {:rsz "8" :v "1.0"}
+        params (merge params query-params)
+        params (assoc params :q search-terms)
+        response (client/get "http://ajax.googleapis.com/ajax/services/search/images"
+                             {:query-params params
                               :as :json})]
     (when (= (:status response) 200)
       (when-let [first-image (-> response :body :responseData :results first :url)]
@@ -26,9 +29,15 @@
     "gis <search-params>")
 
   (exec [this request-params matches]
-    (let [arguments (second matches)]
-      (execute request-params arguments))))
+    (let [invoker (second matches)
+          imgtype (condp = invoker
+                    "gif" "animated"
+                    "animate" "animated"
+                    nil)
+          query-params (if imgtype {:imgtype imgtype} {})
+          search-terms (last matches)]
+      (execute request-params query-params search-terms))))
 
 (defn gis
   []
-  (GIS. :gis #"(?i)^gis (.+)"))
+  (GIS. :gis #"(?i)^(gis|image|gif) (.+)"))

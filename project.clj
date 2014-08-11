@@ -14,7 +14,7 @@
   :ring {:init spike.server/init
          :handler spike.server/handler}
   :resource-paths ["resources" "app"]
-  :profiles {:dev {:source-paths ["src" "dev"]
+  :profiles {:dev {:source-paths ["dev"]
                    :resource-paths ["resources" "dev-resources"]
                    :dependencies [[cider/cider-nrepl "0.7.0-SNAPSHOT"]
                                   [org.clojure/test.check "0.5.9"]
