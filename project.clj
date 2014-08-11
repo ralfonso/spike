@@ -28,4 +28,5 @@
                                cider.nrepl.middleware.macroexpand/wrap-macroexpand
                                cider.nrepl.middleware.stacktrace/wrap-stacktrace]}
   :main spike.bin
+  :uberjar-name "spike-standalone.jar"
   :min-lein-version "2.0.0")
