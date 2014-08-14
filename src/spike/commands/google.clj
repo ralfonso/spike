@@ -11,7 +11,7 @@
     (when (= (:status response) 200)
       (when-let [first-result (-> response :body :responseData :results first :url)]
         (let [at-name (str "@" (:user_name params))
-              google-url (str "https://www.google.com/#q=" arguments)
+              google-url (str "<https://www.google.com/#q=" arguments ">")
               text (str at-name ": " first-result " more: " google-url)]
           {:text text :parse "full"})))))
 
